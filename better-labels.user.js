@@ -23,8 +23,16 @@
     };
 
     function compareLabels(labelA, labelB) {
-        if(labelA.fields.category < labelB.fields.category) return -1;
-        if(labelA.fields.category > labelB.fields.category) return 1;
+        var categoriesOrder = [
+            'category',
+            'bugtype',
+            'bugcause',
+            'area',
+            'impact',
+            'epic'
+            ];
+        if (categoriesOrder.indexOf(labelA.fields.category) < categoriesOrder.indexOf(labelB.fields.category)) return -1;
+        if (categoriesOrder.indexOf(labelA.fields.category) > categoriesOrder.indexOf(labelB.fields.category)) return 1;
         if(labelA.name < labelB.name) return -1;
         if(labelA.name > labelB.name) return 1;
         return 0;
@@ -126,3 +134,4 @@
         });
     });
 })();
+
