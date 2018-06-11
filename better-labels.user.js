@@ -77,15 +77,16 @@
                     var fgcolor = blackOrWhite(bgcolor);
                     var name = label.fields.displayName || label.name;
                     var description = label.fields.description || '';
-                    var link = jQuery('#bl-labels').append('<div class="select-menu-item">' +
-                                                             '<div class="select-menu-item-text">' +
-                                                               '<div class="float-left color mr-2" style="margin-top: 2px; background-color: ' + bgcolor + '"></div>' +
-                                                               '<div>' +
-                                                                 '<span class="name">' + name + '</span>' +
-                                                                 '<div class="description d-block text-gray css-truncate-target m-0">' + description + '</div>' +
-                                                               '</div>' +
-                                                             '</div>' +
-                                                           '</div>');
+                    var link = jQuery('<div class="select-menu-item">' +
+                                      '<div class="select-menu-item-text">' +
+                                      '<div class="float-left color mr-2" style="margin-top: 2px; background-color: ' + bgcolor + '"></div>' +
+                                      '<div>' +
+                                      '<span class="name">' + name + '</span>' +
+                                      '<div class="description d-block text-gray css-truncate-target m-0">' + description + '</div>' +
+                                      '</div>' +
+                                      '</div>' +
+                                      '</div>');
+                    jQuery('#bl-labels').append(link);
                     link.click(function() {
                         GM_xmlhttpRequest({
                             method: 'POST',
