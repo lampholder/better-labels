@@ -361,7 +361,7 @@ def post_issue_labels(repo, project, issue_number):
 
     return if_found(dao.get_issue_labels(issue_path))
 
-@app.route('/<string:repo>/<string:project>/issues/<int:issue_number>/labels/<string:label_id>',
+@app.route('/<string:repo>/<string:project>/issues/<int:issue_number>/labels/<string:delete_label_id>',
            methods=['DELETE'])
 def delete_issue_label(repo, project, issue_number, delete_label_id):
     """
