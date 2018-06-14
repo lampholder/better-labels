@@ -136,6 +136,11 @@ class DAO:
             'fields': json.loads(item.get('fields').get('S'))
         }
 
+    def _item_to_issue(self, item):
+        return {
+            'path': item.get('path').get('S'),
+            'labelIds': item.get('labelIds').get('SS')
+        }
 
     def get_labels(self):
         """Returns fully-hydrated label objects"""
@@ -247,6 +252,32 @@ class DAO:
         )
 
         return issue_path
+
+    def search(self, search_criteria):
+        labels = dao.get_labels()
+        matching_label_ids = [label['id'] for label in labels
+                              if search_criteria in label['fields']
+                              or search_criteria in label['name']]
+
+        scan = self._client.scan(TableName=self.ISSUES_TABLE)
+
+        if 'Items' not in scan:
+            return []
+
+        issues = [self._item_to_issue(item) for item in scan['Items']]
+        print(json.dumps(issues, indent=2))
+
+        matching_issues = [issue for issue in issues
+                           if
+                           len(set(issue['labelIds']).intersection(matching_label_ids))
+                           > 0]
+
+        issue_numbers = [issue['path'].split('/')[-1]
+                         for issue in matching_issues]
+
+        github_url = 'https://github.com/vector-im/riot-web/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+'
+
+        return github_url + '+'.join(issue_numbers)
 
 
 dao = DAO(url_stem='https://localhost:5000')
@@ -400,6 +431,10 @@ def patch_issue_labels(repo, project, issue_number):
     dao.set_issue_label_ids(issue_path, revised_label_ids)
 
     return if_found(dao.get_issue_labels(issue_path))
+
+@app.route('/search', methods=['GET'])
+def search():
+    return jsonify(dao.search(request.args.get('query')))
 
 if __name__ == "__main__":
     app.run()

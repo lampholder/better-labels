@@ -205,6 +205,22 @@ const LabelsAPI = {
                 }
             });
         });
+    },
+
+    search: (criteria) => {
+        return new Promise((resolve, reject) => {
+            GM_xmlhttpRequest({
+                method: 'GET',
+                url: 'https://3iplbb6gp0.execute-api.us-east-1.amazonaws.com/dev/search?query=' + criteria,
+                onload: function(response) {
+                    var link = JSON.parse(response.responseText);
+                    resolve(link);
+                },
+                onerror: function() {
+                    reject();
+                }
+            });
+        });
     }
 
 };
@@ -247,6 +263,16 @@ const IssuePage = {
 
 const IssueList = {
     processPage: (win) => {
+        var searchButton = jQuery('<a class="s-selected-navigation-item subnav-item" style="cursor: pointer;">Better Labels</a>');
+        var issuesSearchBox = jQuery('#js-issues-search');
+        searchButton.click(() => {
+            LabelsAPI.search(issuesSearchBox.val())
+            .then((link) => {
+                window.location.href = link;
+            });
+        });
+        searchButton.insertBefore(jQuery('.subnav-links').children().last());
+
         jQuery('.js-issue-row').each((index, row) => {
             var id = row.id.split('_')[1];
             var label_holder = jQuery(row).find('.labels');
@@ -267,7 +293,7 @@ const Router = {
         if (/^https:\/\/github\.com\/.+\/.+\/issues\/[0-9]+$/.test(url)) {
             IssuePage.processPage(window);
         }
-        else if (/^https:\/\/github\.com\/.+\/.+\/issues$/.test(url)) {
+        else if (/^https:\/\/github\.com\/.+\/.+\/issues(?:\?.*)?$/.test(url)) {
             IssueList.processPage(window);
         }
     }
@@ -281,7 +307,6 @@ const Router = {
 
         var oldLocation = window.location.href;
         setInterval(function() {
-            console.log('Scanning for page change');
             if(window.location.href != oldLocation) {
                 console.log('Page change detected, forcing refresh.');
                 location.reload();
